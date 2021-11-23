@@ -1,0 +1,152 @@
+# -*- ispell-local-dictionary: "english" -*-
+
+#+TITLE: Lokavaluto's LokAPI for node and browsers
+
+LokAPI is a JavaScript library intended to be used in mobile
+applications or web application to abstract all logics with
+lokavaluto's server.
+
+This packages holds implementation details that are usable
+for browser or node support and as such, this package brings
+you all functionality of the LokAPI on these platforms.
+
+* Adding =lokapi= to your project
+
+From the root of your project:
+
+#+begin_src sh
+npm install --save lokapi-browser
+#+end_src
+
+Or better, as =lokapi-browser= is still in early release,
+
+#+begin_src sh
+npm install --save Lokavaluto/lokapi-browser#master
+#+end_src
+
+To be sure to get the latest version, relaunch this last command
+whenever you want to update.
+
+* Setting up =lokapi-browser=
+
+** Subclassing LokAPIBrowserAbstract
+
+To use =lokapi=, you'll need to load backends. These manages the actual
+inner exchanges of a currency. Go check =lokapi-backend-cyclos=, or
+=lokapi-backend-comchain= for more information.
+
+Once you've chosen your backends, you can instantiate the
+=LokAPIBrowserAbstract=. You'll need to provide at least:
+
+- BackendFactories :: A mapping of currency backends loaded
+
+- (optional) requestLogin :: a function to trigger a login screen when
+  automatic authorization fails or when no automatic autorization data
+  exists. This will be triggered only if a protected request is made
+  on the administration backend side.
+
+- (optional) requestLocalPassword :: a function for backends to
+  trigger a request to the user for a password that is meant
+  to be kept locally on the device. This is typically used before
+  payment with some backends (to see an example see package
+  =lokapi-backend-comchain=), or administrative tasks. And takes
+  usually the form of a popup.
+
+
+Here's an example using =sweetalert2= as popup
+
+#+begin_src typescript
+import LokAPIBrowserAbstract from "lokapi-browser"
+
+import comchain from 'lokapi-backend-comchain'
+import cyclos from 'lokapi-backend-cyclos'
+
+import Swal from "sweetalert2"
+
+
+class LokAPI extends LokAPIBrowserAbstract {
+
+  BackendFactories = {
+    comchain,
+    cyclos
+  }
+
+  requestLocalPassword = async function (state: string) {
+    let text
+    if (state === 'firstTry') {
+      text = ''
+    } else if (state === 'failedUnlock') {
+      text = 'Failed to unlock ! Please retry...'
+    }
+    const ret = await Swal.fire({
+      title: 'Enter your password',
+      text,
+      showCloseButton: true,
+      input: 'password',
+      inputLabel: 'wallet password',
+      inputPlaceholder: 'your wallet password',
+      inputAttributes: {
+        maxlength: '32',
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      }
+    })
+    if (ret.isConfirmed) {
+      return ret.value
+    }
+    throw new Error('User canceled the dialog box')
+  }
+
+  requestLogin() {
+    // XXXvlab: for now `requestLogin` is not using the same
+    // interface than `requestLocalPassword`. To make it work
+    // meanwhile, use this callback to trigger a
+    // `lokapi.login(..)`.
+    console.log("Login requested !")
+  }
+
+}
+#+end_src
+
+* Usage
+
+** Instantiating lokapi
+
+On instantiation time, =LokAPI= class will require you to provide:
+
+  - host :: as a =string= (example: "lokavaluto.fr")
+
+  - database :: as a =string= (example: "myodoodb")
+
+
+For instance:
+
+#+begin_src typescript
+var lokAPI = new LokAPI('lokavaluto.fr', 'myodoodb')
+#+end_src
+
+
+** Further usages
+
+You can go check the documentation of the main package LokAPI
+
+
+* Developer
+
+** Building the project from fresh clone
+
+#+begin_src sh
+npm install
+#+end_src
+
+** Transpilation to JavaScript
+
+#+begin_src sh
+npx tsc
+#+end_src
+
+or with watch support:
+
+#+begin_src sh
+npx tsc -w
+#+end_src
