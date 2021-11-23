@@ -108,8 +108,8 @@ get_current_version() {
 get_release_changes() {
     local prev_tag
 
-    prev_tag=$(git describe --tag --abbrev=0 HEAD^)
-    cur_tag=$(git describe --tag --abbrev=0 HEAD)
+    prev_tag=$("$git" describe --tag --abbrev=0 HEAD^)
+    cur_tag=$("$git" describe --tag --abbrev=0 HEAD)
 
     if [ "$prev_tag" = "$cur_tag" ]; then
         die "Error: HEAD and HEAD^ are not on different tags."
