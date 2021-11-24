@@ -1,7 +1,7 @@
 import http from 'http'
 import https from 'https'
 
-import { LokAPIAbstract, e, t } from 'lokapi'
+import { LokAPIAbstract, e, t } from '@lokavaluto/lokapi'
 
 
 class LocalStore implements t.IPersistentStore {

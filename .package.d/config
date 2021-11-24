@@ -1,4 +1,4 @@
-NAME="lokapi-browser"
+NAME="@lokavaluto/lokapi-browser"
 DESCRIPTION="Browser/Node implementation for LokAPI"
 EMAIL="valentin.lab@kalysto.org"
 AUTHOR="Valentin LAB"

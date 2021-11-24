@@ -1,5 +1,5 @@
 {
-    "name": "lokapi-browser",
+    "name": "@lokavaluto/lokapi-browser",
     "version": "%%version%%",
     "description": "Lokavaluto API",
     "main": "build/index.js",
@@ -26,6 +26,6 @@
         "typescript": "^4.4.4"
     },
     "dependencies": {
-        "lokapi": "^0.0.17"
+        "@lokavaluto/lokapi": "^0.0.18"
     }
 }
