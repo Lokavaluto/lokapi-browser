@@ -1,7 +1,7 @@
 import http from 'http'
 import https from 'https'
 
-import { LokAPIAbstract, e, t } from '@lokavaluto/lokapi'
+import { LokAPIAbstract, e, t, RestExc } from '@lokavaluto/lokapi'
 
 
 class LocalStore implements t.IPersistentStore {
@@ -31,7 +31,7 @@ class LocalStore implements t.IPersistentStore {
 const requesters: any = { http, https }
 
 
-export default abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
+abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
 
   persistentStore = new LocalStore("LokAPI")
 
@@ -52,14 +52,13 @@ export default abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
     return new Promise((resolve, reject) => {
       let req = requester.request(httpsOpts, (res: any) => {
         const { statusCode } = res
-
         let rawData = ''
 
         res.on('data', (chunk: any) => { rawData += chunk })
         res.on('end', () => {
           if (!statusCode || statusCode.toString().slice(0, 1) !== '2') {
-            res.resume();
-            reject(new e.HttpError(statusCode, res.statusMessage, rawData, res))
+            res.resume()
+            reject(new RestExc.HttpError(statusCode, res.statusMessage, rawData, res))
             return
           } else {
             if (opts.responseHeaders) {
@@ -78,10 +77,14 @@ export default abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
         req.write(opts.data)
       }
       req.end()
+
       req.on('error', (err: any) => {
-        console.error(`Encountered an error trying to make a request: ${err.message}`);
-        reject(new e.RequestFailed(err.message))
+        console.error(`Encountered an error trying to make a request: ${err.message}`)
+        reject(new RestExc.RequestFailed(err.message))
       })
     })
   }
 }
+
+
+export { LokAPIBrowserAbstract, e, t, RestExc }
