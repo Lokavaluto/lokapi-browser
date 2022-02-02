@@ -1,7 +1,6 @@
-import http from 'http'
-import https from 'https'
-
 import { LokAPIAbstract, e, t, RestExc } from '@lokavaluto/lokapi'
+import { httpRequest as nodeHttpRequest } from '@0k.io/node-request'
+import { t as RequestTypes } from '@0k.io/types-request'
 
 
 class LocalStore implements t.IPersistentStore {
@@ -28,63 +27,18 @@ class LocalStore implements t.IPersistentStore {
 }
 
 
-const requesters: any = { http, https }
-
-
 abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
 
   persistentStore = new LocalStore("LokAPI")
 
   base64Encode = (s: string) => Buffer.from(s).toString('base64')
 
-  httpRequest = (opts: t.coreHttpOpts) => {
-    const httpsOpts = {
-      host: opts.host,
-      path: opts.path,
-      method: opts.method,
-      ...opts.headers && { headers: opts.headers },
-      ...opts.port && { port: opts.port }
-    }
-    const requester = requesters[opts.protocol]
-    if (!requester) {
-      throw new Error(`Protocol ${opts.protocol} unsupported by this implementation`)
-    }
-    return new Promise((resolve, reject) => {
-      let req = requester.request(httpsOpts, (res: any) => {
-        const { statusCode } = res
-        let rawData = ''
+  httpRequest: RequestTypes.HttpRequest = nodeHttpRequest
 
-        res.on('data', (chunk: any) => { rawData += chunk })
-        res.on('end', () => {
-          if (!statusCode || statusCode.toString().slice(0, 1) !== '2') {
-            res.resume()
-            reject(new RestExc.HttpError(statusCode, res.statusMessage, rawData, res))
-            return
-          } else {
-            if (opts.responseHeaders) {
-              for (const header in res.headers) {
-                opts.responseHeaders[header] = res.headers[header]
-              }
-            }
-            resolve(rawData)
-          }
-        })
-      })
-
-      if (opts.data) {
-        if (typeof opts.data !== "string")
-          opts.data = JSON.stringify(opts.data)
-        req.write(opts.data)
-      }
-      req.end()
-
-      req.on('error', (err: any) => {
-        console.error(`Encountered an error trying to make a request: ${err.message}`)
-        reject(new RestExc.RequestFailed(err.message))
-      })
-    })
-  }
 }
 
 
-export { LokAPIBrowserAbstract, e, t, RestExc }
+export {
+  LokAPIBrowserAbstract, e, t,
+  RestExc
+}
