@@ -40,5 +40,6 @@ abstract class LokAPIBrowserAbstract extends LokAPIAbstract {
 
 export {
   LokAPIBrowserAbstract, e, t,
-  RestExc
+  RestExc,
+  LocalStore
 }
