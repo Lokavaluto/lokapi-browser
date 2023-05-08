@@ -1,6 +1,6 @@
 import { LokAPIAbstract, e, t, RestExc } from '@lokavaluto/lokapi'
-import { httpRequest as nodeHttpRequest } from '@0k.io/browser-request'
-import { t as RequestTypes } from '@0k.io/types-request'
+import { httpRequest as nodeHttpRequest } from '@0k/browser-request'
+import { t as RequestTypes } from '@0k/types-request'
 
 
 class LocalStore implements t.IPersistentStore {
